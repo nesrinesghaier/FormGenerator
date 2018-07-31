@@ -1,0 +1,9 @@
+form_list:
+    path:     /form
+    defaults: { _controller: "AppBundle:Form:list" }
+    methods:  GET
+
+form_create:
+    path:     /form/create
+    defaults: { _controller: "AppBundle:Form:create" }
+    methods:  POST

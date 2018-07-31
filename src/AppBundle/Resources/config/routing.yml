@@ -1,0 +1,6 @@
+app_user:
+    resource: "@AppBundle/Resources/config/routing/user.yml"
+    prefix:   /user
+
+app_form:
+    resource: "@AppBundle/Resources/config/routing/form.yml"
