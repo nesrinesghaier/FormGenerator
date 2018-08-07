@@ -3,12 +3,10 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\Controller\Annotations as Rest;
+
 /**
  * User controller.
  *
@@ -35,7 +33,7 @@ class UserController extends Controller
             $user->setEnabled(true);
             $em->persist($user);
             $em->flush();
-            echo 'user created '.$user->getEmail();
+            //echo 'user created '.$user->getEmail();
             }
 
         return $this->render('user/new.html.twig', array(
@@ -66,6 +64,7 @@ class UserController extends Controller
      *
      * @Route("/{id}", name="user_show")
      * @Method("GET")
+     *
      */
     public function showAction(User $user)
     {

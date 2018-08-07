@@ -8,9 +8,6 @@
 
 namespace AppBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-
 /**
  * @ORM\Entity
  * @ORM\Table(name="form")
@@ -33,6 +30,7 @@ class Form
 	private $formDescription;
 	/**
 	 * @ORM\Column(type="datetime",name="creationDate")
+     * @Assert\DateTime
 	 */
 	private $creationDate;
 	/**
@@ -45,10 +43,6 @@ class Form
 	 * Form constructor.
 	 * @param $lastModifDate
 	 */
-	public function __construct()
-	{
-	}
-
 
 	/**
 	 * Form constructor.
@@ -58,15 +52,14 @@ class Form
 	 * @param $creationDate
 	 * @param $lastModifDate
 	 */
-/*
-	public function __construct($id, $title, $formDescription, $creationDate, $lastModifDate)
+
+	public function __construct( $title, $formDescription, $creationDate, $lastModifDate)
 	{
-		$this->id = $id;
 		$this->title = $title;
 		$this->formDescription = $formDescription;
 		$this->creationDate = $creationDate;
 		$this->lastModifDate = $lastModifDate;
-	}*/
+	}
 	/**
 	 * @return mixed
 	 */
