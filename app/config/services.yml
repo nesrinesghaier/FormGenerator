@@ -4,6 +4,11 @@ parameters:
     #parameter_name: value
 
 services:
+
+    token_authenticator:
+        class: AppBundle\Security\TokenAuthenticator
+        arguments: ['@lexik_jwt_authentication.jwt_encoder', '@doctrine.orm.entity_manager']
+
     # default configuration for services in *this* file
     _defaults:
         # automatically injects dependencies in your services
@@ -28,6 +33,13 @@ services:
         resource: '../../src/AppBundle/Controller'
         public: true
         tags: ['controller.service_arguments']
+        autowire: true
+
+#    AppBundle\Controller\RegistrationController:
+#        tags: ['controller.service_arguments']
+#        autowire: true
+#        calls:
+#          - [setContainer, ["@service_container"]]
 
     # add more services, or override services that need manual wiring
     # AppBundle\Service\ExampleService:
@@ -39,3 +51,19 @@ services:
            - { name: form.type}
     sensio_framework_extra.view.listener:
         alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
+
+    new_service_name:
+      alias: fos_user.user_manager
+      public: true
+
+    app.controller.registration:
+      class: AppBundle\Controller\RegistrationController
+      alias: fos_user.user_manager
+      arguments: ['@service_container']
+      public: true
+    AppBundle\Controller\RegistrationController:
+      arguments:
+        $formFactory: '@fos_user.registration.form.factory'
+
+    fos_user.security.controller:
+      class: AppBundle\Controller\SecurityController

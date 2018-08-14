@@ -2,7 +2,7 @@
 # https://symfony.com/doc/current/security.html
 security:
     encoders:
-        FOS\UserBundle\Model\UserInterface: bcrypt
+        AppBundle\Entity\User: bcrypt
     role_hierarchy:
         ROLE_ADMIN:       ROLE_USER
         ROLE_SUPER_ADMIN: ROLE_ADMIN
@@ -23,9 +23,12 @@ security:
         main:
             pattern: ^/
             form_login:
-                provider: fos_userbundle
-                csrf_token_generator: security.csrf.token_manager
-            logout: true
+              provider: fos_userbundle
+              csrf_token_generator: security.csrf.token_manager
+            logout:
+                path: /logout
+                target: /logout
+                invalidate_session: true
             anonymous: true
 
             # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
@@ -33,3 +36,24 @@ security:
 
             # https://symfony.com/doc/current/security/form_login_setup.html
             #form_login: ~
+        ###to remove later
+        login:
+          pattern:  ^/login
+          stateless: true
+          anonymous: true
+          json_login:
+            check_path:               /login
+            success_handler:          lexik_jwt_authentication.handler.authentication_success
+            failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+          pattern:   ^/
+          stateless: true
+          guard:
+            authenticators:
+            - lexik_jwt_authentication.jwt_token_authenticator
+    access_control:
+      - { path: ^/,       roles: IS_AUTHENTICATED_ANONYMOUSLY  }
+      - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+      - { path: ^/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+      #- { path: ^/,       roles: IS_AUTHENTICATED_FULLY }

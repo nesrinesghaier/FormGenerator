@@ -6,155 +6,54 @@ use AppBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
-/**
- * User controller.
- *
- * @Route("user")
- */
 class UserController extends Controller
 {
-	/**
-     * Creates a new user entity.
+    /**
+     * Lists all user entities.
      *
-     * @Route("/new", name="user_new")
-     * @Method({"GET", "POST"})
+     * @Rest\Get(path="/user")
      */
-    public function newAction(Request $request)
+    public function indexAction()
     {
-
-        $user = new User();
-        $form = $this->createForm('AppBundle\Form\UserType', $user);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $user->setUsernameCanonical($user->getUsername());
-            $user->setEmailCanonical($user->getEmail());
-            $user->setEnabled(true);
-            $em->persist($user);
-            $em->flush();
-            //echo 'user created '.$user->getEmail();
-            }
-
-        return $this->render('user/new.html.twig', array(
-            'user' => $user,
-            'form' => $form->createView(),
-        ));
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository('AppBundle:User')->findAll();
+        $serializer = $this->get('jms_serializer')->serialize($users, 'json');
+        $response = new Response($serializer);
+        return $response;
     }
 
-	/**
-	 * Lists all user entities.
-	 *
-	 * @Route("/", name="user_index")
-	 * @Method("GET")
-	 */
-	public function indexAction()
-	{
-		$em = $this->getDoctrine()->getManager();
-
-
-		$users = $em->getRepository('AppBundle:User')->findAll();
-		$serializer = $this->get('jms_serializer')->serialize($users,'json');
-		$response = new Response($serializer);
-		return $response;
-	}
-
-	/**
+    /**
      * Finds and displays a user entity.
      *
-     * @Route("/{id}", name="user_show")
-     * @Method("GET")
+     * @Rest\Get(path="/user/{id}")
      *
      */
     public function showAction(User $user)
     {
-        $deleteForm = $this->createDeleteForm($user);
-		$user = $this->getDoctrine()
-			->getRepository('AppBundle:User')
-			->find($user->getId());
-		$data = array(
-			'name' => $user->getFirstName(),
-			'last' => $user->getLastName(),
-			'username' => $user->getUsername(),
-			'password' => $user->getPassword(),
-		);
+        $user = $this->getDoctrine()
+            ->getRepository('AppBundle:User')
+            ->find($user->getId());
+        $data = array(
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'username' => $user->getUsername(),
+            'password' => $user->getPassword(),
+            'email' => $user->getEmail(),
+        );
         return new Response(json_encode($data));
 
     }
 
     /**
-     * Displays a form to edit an existing user entity.
+     * @Rest\Post("/test")
      *
-     * @Route("/{id}/edit", name="user_edit")
-     * @Method({"GET", "POST"})
      */
-    public function editAction(Request $request, User $user)
+    public function testAction(Request $request)
     {
-        $deleteForm = $this->createDeleteForm($user);
-        $editForm = $this->createForm('AppBundle\Form\UserType', $user);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('user_edit', array('id' => $user->getId()));
-        }
-
-        return $this->render('user/edit.html.twig', array(
-            'user' => $user,
-            'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        ));
+        return new Response('test succeeded');
     }
-
-    /**
-     * Deletes a user entity.
-     *
-     * @Route("/{id}", name="user_delete")
-     * @Method("DELETE")
-     */
-    public function deleteAction(Request $request, User $user)
-    {
-        $form = $this->createDeleteForm($user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($user);
-            $em->flush();
-        }
-
-        return $this->redirectToRoute('user_index');
-    }
-
-    /**
-     * Creates a form to delete a user entity.
-     *
-     * @param User $user The user entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(User $user)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('user_delete', array('id' => $user->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
-    }
-
-	/**
-	 * @Rest\View()
-	 * @Rest\Post("/test")
-	 *
-	 */
-	public function testAction(Request $request)
-	{
-		return [
-			'payload' => [
-				$request->get('email'),
-				$request->get('firstname')
-			]
-		];
-	}
 }
