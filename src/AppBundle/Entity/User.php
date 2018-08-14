@@ -3,12 +3,39 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\ORM\Mapping\AttributeOverride;
+use Doctrine\ORM\Mapping\AttributeOverrides;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\UserBundle\Model\User as BaseUser;
-
+use Doctrine\ORM\Mapping\Column;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @ORM\Entity
  * @ORM\Table(name="fos_user")
+ *  @AttributeOverrides({
+ *      @AttributeOverride(name="usernameCanonical",
+ *          column=@Column(
+ *              type     = "string",
+ *              length   = 155,
+ *          )
+ *      ),
+ *      @AttributeOverride(name="emailCanonical",
+ *          column=@Column(
+ *              type     = "string",
+ *              length   = 155,
+ *          )
+ *      ),
+ *      @AttributeOverride(name="email",
+ *          column=@Column(
+ *              type     = "string",
+ *              length   = 155,
+ *              unique   = true,
+ *          )
+ *      )
+ * })
+ * @UniqueEntity(fields={"email"},message="This email is already in use")
+ * @UniqueEntity("username",message="This username is already in use")
  */
 class User extends BaseUser
 {
@@ -22,12 +49,12 @@ class User extends BaseUser
 	public function __construct()
 	{
 		parent::__construct();
-		// your own logic
+        $this->forms = new ArrayCollection();
 	}
 
 	/**
 	 * @var string
-	 * @ORM\Column(name="first_name",type="string",length=20,columnDefinition="AFTER `id`")
+	 * @ORM\Column(name="first_name",type="string",length=20)
 	 */
 	protected $firstName;
 	/**
@@ -35,6 +62,10 @@ class User extends BaseUser
 	 */
 	protected $lastName;
 
+	/**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Form",mappedBy="user")
+     */
+	protected $forms;
 	/**
 	 * @return mixed
 	 */

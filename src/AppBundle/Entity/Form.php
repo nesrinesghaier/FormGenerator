@@ -7,7 +7,9 @@
  */
 
 namespace AppBundle\Entity;
-
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use AppBundle\Entity\User;
 /**
  * @ORM\Entity
  * @ORM\Table(name="form")
@@ -39,6 +41,12 @@ class Form
 	 */
 	private $lastModifDate;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
 	/**
 	 * Form constructor.
 	 * @param $lastModifDate
@@ -60,6 +68,7 @@ class Form
 		$this->creationDate = $creationDate;
 		$this->lastModifDate = $lastModifDate;
 	}
+
 	/**
 	 * @return mixed
 	 */
@@ -140,4 +149,21 @@ class Form
 	{
 		$this->lastModifDate = $lastModifDate;
 	}
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
 }

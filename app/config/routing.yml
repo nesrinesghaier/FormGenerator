@@ -1,14 +1,24 @@
-app_user:
+user_register:
+  resource: "@AppBundle/Controller/RegistrationController.php"
+  type:     rest
+
+user_login:
+  resource: "@AppBundle/Controller/SecurityController.php"
+  type:     rest
+
+
+app_:
     resource: "@AppBundle/Controller/UserController.php"
-    type:     annotation
-
-app:
-    resource: "@AppBundle/Resources/config/routing.yml"
-    prefix:   /
-
-fos_user:
-    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+    type:     rest
 
 form:
     type:     rest
     resource: "@AppBundle/Controller/FormController.php"
+
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+
+app:
+  resource: "@AppBundle/Resources/config/routing.yml"
+  type: annotation
+  prefix:   /
