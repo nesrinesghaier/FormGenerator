@@ -10,10 +10,3 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
-    cors_allow_origin: 'http://localhost'
-    api_name: 'Your API name'
-    api_description: 'The full description of your API'
-    jwt_private_key_path: '%kernel.root_dir%/var/jwt/private.pem'
-    jwt_public_key_path: '%kernel.root_dir%/var/jwt/public.pem'
-    jwt_key_pass_phrase: sofia
-    jwt_token_ttl: 86400

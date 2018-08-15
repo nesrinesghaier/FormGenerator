@@ -42,7 +42,6 @@ twig:
 # Doctrine Configuration
 doctrine:
     dbal:
-        driver: pdo_mysql
         host:     '%database_host%'
         port: 3306
         dbname:   '%database_name%'
@@ -104,10 +103,11 @@ sensio_framework_extra:
     view: { annotations: false }
     request: { converters: true }
 
-lexik_jwt_authentication:
-    secret_key:       '%kernel.project_dir%/config/jwt/private.pem' # required for token creation
-    public_key:       '%kernel.project_dir%/config/jwt/public.pem'  # required for token verification
-    pass_phrase:      '%jwt_key_pass_phrase%' # required for token creation, usage of an environment variable is recommended
-    token_ttl:        '%jwt_token_ttl%'
-    user_identity_field: username
-    clock_skew: 0
+fos_oauth_server:
+    db_driver: orm       # Drivers available: orm, mongodb, or propel
+    client_class:        AppBundle\Entity\Authentication\Client
+    access_token_class:  AppBundle\Entity\Authentication\AccessToken
+    refresh_token_class: AppBundle\Entity\Authentication\RefreshToken
+    auth_code_class:     AppBundle\Entity\Authentication\AuthCode
+#    service:
+#      user_provider: fos_user.user_provider.username

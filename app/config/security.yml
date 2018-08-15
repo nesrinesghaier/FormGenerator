@@ -15,7 +15,12 @@ security:
         database_users:
             entity: { class: App\Entity\User, property: email }
     firewalls:
-        # disables authentication for assets and the profiler, adapt it according to your needs
+#        oauth_token:
+#          pattern:    ^/oauth/v2/token
+#          security:   false
+
+#        oauth_authorize:
+#          pattern:    ^/oauth/v2/auth
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -43,15 +48,13 @@ security:
           anonymous: true
           json_login:
             check_path:               /login
-            success_handler:          lexik_jwt_authentication.handler.authentication_success
-            failure_handler:          lexik_jwt_authentication.handler.authentication_failure
 
         api:
           pattern:   ^/
+          fos_oauth:  true
           stateless: true
-          guard:
-            authenticators:
-            - lexik_jwt_authentication.jwt_token_authenticator
+          anonymous:  false
+
     access_control:
       - { path: ^/,       roles: IS_AUTHENTICATED_ANONYMOUSLY  }
       - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
