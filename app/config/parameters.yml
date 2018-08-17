@@ -10,3 +10,5 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
+    oauth2_client_id: 25_5u01sp38ce4goocwkok0k04wog8c4ocs84k4000k40sswosooc
+    oauth2_client_secret: ynyse1rfiv4wkgkscko8soosoc840g8k4o4s00gg044wcsg4o

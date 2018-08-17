@@ -15,12 +15,16 @@ security:
         database_users:
             entity: { class: App\Entity\User, property: email }
     firewalls:
-#        oauth_token:
-#          pattern:    ^/oauth/v2/token
-#          security:   false
-
-#        oauth_authorize:
-#          pattern:    ^/oauth/v2/auth
+        oauth_token:
+          pattern:    ^/oauth/v2/token
+          security:   false
+        oauth_authorize:
+          pattern:    ^/oauth/v2/auth
+          form_login:
+             provider: fos_userbundle
+             check_path: /oauth/v2/auth_login_check
+             login_path: /oauth/v2/auth_login
+          anonymous: true
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -31,32 +35,23 @@ security:
               provider: fos_userbundle
               csrf_token_generator: security.csrf.token_manager
             logout:
-                path: /logout
-                target: /logout
+                path: /signout
+                target: /signout
                 invalidate_session: true
             anonymous: true
-
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-            #http_basic: ~
-
-            # https://symfony.com/doc/current/security/form_login_setup.html
-            #form_login: ~
-        ###to remove later
         login:
-          pattern:  ^/login
+          pattern:  ^/signin
           stateless: true
           anonymous: true
           json_login:
-            check_path:               /login
+            check_path:    /signin
 
         api:
-          pattern:   ^/
+          pattern:   ^/api
           fos_oauth:  true
           stateless: true
           anonymous:  false
 
     access_control:
-      - { path: ^/,       roles: IS_AUTHENTICATED_ANONYMOUSLY  }
-      - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
       - { path: ^/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-      #- { path: ^/,       roles: IS_AUTHENTICATED_FULLY }
+      - { path: ^/signin, roles: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -36,7 +36,7 @@ class Form
 	 */
 	private $creationDate;
 	/**
-	 * @ORM\Column(type="datetime",name="lastModifDate")
+	 * @ORM\Column(type="datetime",name="lastModifDate", nullable=true)
 	 * @Assert\Type("\DateTime")
 	 */
 	private $lastModifDate;
@@ -61,12 +61,11 @@ class Form
 	 * @param $lastModifDate
 	 */
 
-	public function __construct( $title, $formDescription, $creationDate, $lastModifDate)
+	public function __construct( $title, $formDescription, $creationDate)
 	{
 		$this->title = $title;
 		$this->formDescription = $formDescription;
 		$this->creationDate = $creationDate;
-		$this->lastModifDate = $lastModifDate;
 	}
 
 	/**

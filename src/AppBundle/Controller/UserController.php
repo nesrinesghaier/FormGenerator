@@ -16,7 +16,7 @@ class UserController extends Controller
     /**
      * Lists all user entities.
      *
-     * @Rest\Get(path="/user")
+     * @Rest\Get(path="api/user")
      */
     public function indexAction()
     {
@@ -33,7 +33,7 @@ class UserController extends Controller
     /**
      * Finds and displays a user entity.
      *
-     * @Rest\Get(path="/user/{id}")
+     * @Rest\Get(path="api/user/{id}")
      *
      */
     public function showAction(User $user)
@@ -56,7 +56,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Rest\Post("/test")
+     * @Rest\Post("api/test")
      *
      */
     public function testAction(Request $request)

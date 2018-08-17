@@ -17,6 +17,7 @@ framework:
         strict_requirements: ~
     form: ~
     csrf_protection: ~
+    translator: { fallback: en }
     validation: { enable_annotations: true }
     serializer: { enable_annotations: true }
     default_locale: '%locale%'
@@ -109,5 +110,9 @@ fos_oauth_server:
     access_token_class:  AppBundle\Entity\Authentication\AccessToken
     refresh_token_class: AppBundle\Entity\Authentication\RefreshToken
     auth_code_class:     AppBundle\Entity\Authentication\AuthCode
-#    service:
-#      user_provider: fos_user.user_provider.username
+    service:
+      user_provider: fos_user.user_provider.username
+      options:
+        access_token_lifetime: 86400
+        refresh_token_lifetime: 1209600
+        auth_code_lifetime: 30

@@ -20,26 +20,20 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class FormController extends FOSRestController
 {
     /**
-     * @Rest\Post(path="form/create")
+     * @Rest\Post(path="api/form/create")
      *
      */
 
     public function createAction(Request $request)
 
     {
-        /*if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            throw new AccessDeniedException();
-        }*/
         $em = $this->getDoctrine()->getManager();
         $json = json_decode($request->getContent(false), true);
         $title = $json["title"];
-        $creationDate = $json["creationDate"];
-        $lastModifDate = $json["lastModifDate"];
         $formDescription = $json["formDescription"];
-        $creationDate = new \DateTime($creationDate);
-        $lastModifDate = new \DateTime($lastModifDate);
-        $form = new Form($title, $formDescription, $creationDate, $lastModifDate);
-        $form->setUser($em->find('AppBundle\Entity\User', $json["user_id"]));
+        $creationDate = new \DateTime();
+        $form = new Form($title, $formDescription, $creationDate);
+        $form->setUser($em->find(User::class, $json["user_id"]));
         print_r(json_encode($form));
         $em->persist($form);
         $em->flush();
@@ -48,32 +42,26 @@ class FormController extends FOSRestController
     }
 
     /**
-     * @Rest\Get("/form",name="form_list")
+     * @Rest\Get("api/form",name="form_list")
      *
      */
     public function listAction()
     {
-        /*if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-          throw new AccessDeniedException();
-      }*/
         $em = $this->getDoctrine()->getManager();
-        $forms = $em->getRepository('AppBundle:Form')->findAll();
+        $forms = $em->getRepository(Form::class)->findAll();
         $serializer = $this->get('jms_serializer')->serialize($forms, 'json');
         $response = new Response($serializer);
         return $response;
     }
 
     /**
-     * @Rest\Get("form/{id}")
+     * @Rest\Get("api/form/{id}")
      *
      */
     public function showFormAction($id)
     {
-        /*if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-          throw new AccessDeniedException();
-      }*/
         $form = $this->getDoctrine()
-            ->getRepository("AppBundle\\Entity\\Form")
+            ->getRepository(Form::class)
             ->find($id);
         $user=$form->getUser();
 
@@ -81,7 +69,7 @@ class FormController extends FOSRestController
             'title' => $form->getTitle(),
             'form_description'=>$form->getFormDescription(),
             'creation_date'=>$form->getCreationDate(),
-            'last_modif_date'=>$form->getLastModifDate(),
+            'last_modif_date'=>($form->getLastModifDate()!=null)?$form->getLastModifDate():'not yet modified',
             "user"=>array(
                 "id"=>$user->getId(),
                 "username"=>$user->getUsername(),
@@ -93,12 +81,12 @@ class FormController extends FOSRestController
         return new Response(json_encode($data));
     }
     /**
-     * @Rest\Delete("form/{id}")
+     * @Rest\Delete("/api/form/{id}")
      *
      */
     public function  deleteAction($id){
         $form = $this->getDoctrine()
-            ->getRepository("AppBundle\\Entity\\Form")
+            ->getRepository(Form::class)
             ->find($id);
         if (!$form) {
             return new Response('there\'s no such a form id in the database');
@@ -110,11 +98,11 @@ class FormController extends FOSRestController
     }
 
      /**
-     * @Rest\Put("form/{id}")
+     * @Rest\Put("api/form/{id}")
      *
      */
-    /*s public function  editAction(Request $request,$id){
-         $formFromDB = $this->getDoctrine()->getRepository("AppBundle\\Entity\\Form")->find($id);
+    public function  editAction(Request $request,$id){
+         $formFromDB = $this->getDoctrine()->getRepository(Form::class)->find($id);
          if (null===$formFromDB) {
              return new Response('there\'s no such a form id in the database');
          }
@@ -123,14 +111,10 @@ class FormController extends FOSRestController
          $json = json_decode($request->getContent(false), true);
          $formFromDB->setTitle($json["title"]);
          $formFromDB->setFormDescription($json["formDescription"]);
-         $creationDate = $json["creationDate"];
-         $lastModifDate = $json["lastModifDate"];
-         $creationDate = new \DateTime($creationDate);
-         $lastModifDate = new \DateTime($lastModifDate);
-         $formFromDB->setCreationDate($creationDate);
+         $lastModifDate = new \DateTime();
          $formFromDB->setLastModifDate($lastModifDate);
          $em->persist($formFromDB);
          $em->flush();
          return new Response('form updated');
-     }*/
+     }
 }

@@ -18,11 +18,6 @@ form:
 fos_user:
     resource: "@FOSUserBundle/Resources/config/routing/all.xml"
 
-app:
-  resource: "@AppBundle/Resources/config/routing.yml"
-  type: annotation
-  prefix:   /
-
 fos_oauth_server_token:
   resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
 

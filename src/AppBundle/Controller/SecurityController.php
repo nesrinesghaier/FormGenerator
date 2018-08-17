@@ -16,6 +16,7 @@ use FOS\UserBundle\Controller\SecurityController as BaseController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
+
 /**
  * Controller managing security.
  */
@@ -31,31 +32,14 @@ class SecurityController extends BaseController
     /**
      * @Rest\Post(path="signin")
      */
-    public function loginAction(\Symfony\Component\HttpFoundation\Request $request)
+    public function loginAction(Request $request)
     {
 
-        /** @var $session Session */
-        $session = $request->getSession();
 
-        $authErrorKey = Security::AUTHENTICATION_ERROR;
-        $lastUsernameKey = Security::LAST_USERNAME;
-
-        if ($request->attributes->has($authErrorKey)) {
-            $error = $request->attributes->get($authErrorKey);
-        } elseif (null !== $session && $session->has($authErrorKey)) {
-            $error = $session->get($authErrorKey);
-            $session->remove($authErrorKey);
-        } else {
-            $error = null;
-        }
-
-        if (!$error instanceof AuthenticationException) {
-            $error = null; // The value does not come from the security component.
-        }
         $json = json_decode($request->getContent(false), true);
-        $lastUsername = (null === $session) ? '' : $session->get($lastUsernameKey);
         $EnteredUserName = $json['username'];
-        $user = $this->getDoctrine()->getRepository('AppBundle\Entity\User')->findOneBy(array('username' => $EnteredUserName));
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['username'=>$EnteredUserName]);
+        //$this->get('fos_oauth_server.server')->grantAccessToken($request2)->getContent();
         if (null === $user) {
             return new Response('please register if you\'re not registered');
         }
@@ -64,21 +48,10 @@ class SecurityController extends BaseController
         $password = $json["password"];
         $valid = $encoder->isPasswordValid($oldPassword, $password, '');
         if ($valid) {
-            if (!$user instanceof UserInterface) {
-                return new Response('not interface');;
-            }
-           //$jwtManager = $this->container->get('lexik_jwt_authentication.jwt_token_authenticator');
-          // $token= $jwtManager->encode(['username' => $user->getUsername()]);
-           // var_dump($jwtManager);die;
-               //->create($user);
-           /* $authenticationSuccessHandler = $this->container->get('lexik_jwt_authentication.handler.authentication_success');*/
-            $serializer = $this->get('jms_serializer')->serialize($user,'json');
-            $response = new Response($serializer);
-            return $response;
-           /* $jwtManager = $this->container->get('lexik_jwt_authentication.jwt_manager');
-            return new JsonResponse(['token' => $jwtManager->create($user)]);*/
+           $token= $this->getAuth2Token($user,$request);
         }
-        return new Response('test');
+
+        return new JsonResponse($token);
     }
 
     /**
@@ -105,6 +78,33 @@ class SecurityController extends BaseController
         $this->get('request')->getSession()->invalidate();
 
         return new Response('user logged out');
+    }
+
+
+    protected function getAuth2Token(User $user, Request $request)
+    {
+        $request2 = new Request();
+        $request2->query->add([
+            'client_id' => $this->getParameter('oauth2_client_id'),
+            'client_secret' => $this->getParameter('oauth2_client_secret'),
+            'grant_type' => 'password',
+            'username' => $user->getUsername(),
+            'password' => $request->get('password')
+        ]);
+
+        try {
+            return array_merge(
+                json_decode(
+                    $this
+                        ->get('fos_oauth_server.server')
+                        ->grantAccessToken($request2)
+                        ->getContent(),
+                    true
+                )
+            );
+        } catch (OAuth2ServerException $e) {
+            return $e->getHttpResponse();
+        }
     }
 
 }
