@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Authentication\AccessToken;
 use AppBundle\Entity\Form;
 use AppBundle\Entity\User;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -17,7 +18,7 @@ use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class FormController extends FOSRestController
+class FormController extends Controller
 {
     /**
      * @Rest\Post(path="api/form/create")
@@ -45,76 +46,93 @@ class FormController extends FOSRestController
      * @Rest\Get("api/form",name="form_list")
      *
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $forms = $em->getRepository(Form::class)->findAll();
         $serializer = $this->get('jms_serializer')->serialize($forms, 'json');
         $response = new Response($serializer);
-        return $response;
+        return new Response($response);
     }
 
     /**
      * @Rest\Get("api/form/{id}")
      *
      */
-    public function showFormAction($id)
+    public function showFormAction(Request $request, $id)
     {
+        if(!$this->tokenValidation($request)){
+            return new Request('{"error":"access_denied","error_description":"authentication required"}');
+        }
         $form = $this->getDoctrine()
             ->getRepository(Form::class)
             ->find($id);
-        $user=$form->getUser();
+        $user = $form->getUser();
 
         $data = array(
             'title' => $form->getTitle(),
-            'form_description'=>$form->getFormDescription(),
-            'creation_date'=>$form->getCreationDate(),
-            'last_modif_date'=>($form->getLastModifDate()!=null)?$form->getLastModifDate():'not yet modified',
-            "user"=>array(
-                "id"=>$user->getId(),
-                "username"=>$user->getUsername(),
-                "email"=> $user->getEmail(),
-                "first_name"=>$user->getFirstName(),
-                "last_name"=>$user->getLastName(),
+            'form_description' => $form->getFormDescription(),
+            'creation_date' => $form->getCreationDate(),
+            'last_modif_date' => ($form->getLastModifDate() != null) ? $form->getLastModifDate() : 'not yet modified',
+            "user" => array(
+                "id" => $user->getId(),
+                "username" => $user->getUsername(),
+                "email" => $user->getEmail(),
+                "first_name" => $user->getFirstName(),
+                "last_name" => $user->getLastName(),
             )
         );
         return new Response(json_encode($data));
     }
+
     /**
      * @Rest\Delete("/api/form/{id}")
      *
      */
-    public function  deleteAction($id){
+    public function deleteAction(Request $request, $id)
+    {
         $form = $this->getDoctrine()
             ->getRepository(Form::class)
             ->find($id);
         if (!$form) {
             return new Response('there\'s no such a form id in the database');
         }
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $em->remove($form);
         $em->flush();
         return new Response('form deleted');
     }
 
-     /**
+    /**
      * @Rest\Put("api/form/{id}")
      *
      */
-    public function  editAction(Request $request,$id){
-         $formFromDB = $this->getDoctrine()->getRepository(Form::class)->find($id);
-         if (null===$formFromDB) {
-             return new Response('there\'s no such a form id in the database');
-         }
-         //return new JsonResponse($formFromDB);
-         $em = $this->getDoctrine()->getManager();
-         $json = json_decode($request->getContent(false), true);
-         $formFromDB->setTitle($json["title"]);
-         $formFromDB->setFormDescription($json["formDescription"]);
-         $lastModifDate = new \DateTime();
-         $formFromDB->setLastModifDate($lastModifDate);
-         $em->persist($formFromDB);
-         $em->flush();
-         return new Response('form updated');
-     }
+    public function editAction(Request $request, $id)
+    {
+        $formFromDB = $this->getDoctrine()->getRepository(Form::class)->find($id);
+        if (null === $formFromDB) {
+            return new Response('there\'s no such a form id in the database');
+        }
+        //return new JsonResponse($formFromDB);
+        $em = $this->getDoctrine()->getManager();
+        $json = json_decode($request->getContent(false), true);
+        $formFromDB->setTitle($json["title"]);
+        $formFromDB->setFormDescription($json["formDescription"]);
+        $lastModifDate = new \DateTime();
+        $formFromDB->setLastModifDate($lastModifDate);
+        $em->persist($formFromDB);
+        $em->flush();
+        return new Response('form updated');
+    }
+
+    protected function tokenValidation(Request $request)
+    {
+        $token_string = substr($request->headers->get('authorization'), 7);
+        $token_DB = $this->getDoctrine()->getRepository(AccessToken::class)->findOneBy(array('token' => $token_string));
+        if (strcasecmp($token_string, $token_DB) != 0) {
+            return false;
+        } else return true;
+    }
+
+
 }

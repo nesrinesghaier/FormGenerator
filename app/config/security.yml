@@ -15,15 +15,18 @@ security:
         database_users:
             entity: { class: App\Entity\User, property: email }
     firewalls:
+        api:
+          pattern:   ^/api
+          fos_oauth:  true
+          stateless: true
         oauth_token:
           pattern:    ^/oauth/v2/token
           security:   false
         oauth_authorize:
           pattern:    ^/oauth/v2/auth
           form_login:
-             provider: fos_userbundle
-             check_path: /oauth/v2/auth_login_check
-             login_path: /oauth/v2/auth_login
+            check_path: _security_check
+            login_path: _demo_login
           anonymous: true
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -34,24 +37,13 @@ security:
             form_login:
               provider: fos_userbundle
               csrf_token_generator: security.csrf.token_manager
-            logout:
-                path: /signout
-                target: /signout
-                invalidate_session: true
             anonymous: true
-        login:
-          pattern:  ^/signin
-          stateless: true
-          anonymous: true
-          json_login:
-            check_path:    /signin
 
-        api:
-          pattern:   ^/api
-          fos_oauth:  true
-          stateless: true
-          anonymous:  false
 
     access_control:
+      #- { path: ^/api, role: IS_AUTHENTICATED_FULLY }
       - { path: ^/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
       - { path: ^/signin, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+      - { path: ^/oauth/v2/auth$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+      #- { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
+

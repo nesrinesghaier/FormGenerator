@@ -3,6 +3,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Authentication\AccessToken;
 use AppBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,12 +35,10 @@ class SecurityController extends BaseController
      */
     public function loginAction(Request $request)
     {
-
-
         $json = json_decode($request->getContent(false), true);
         $EnteredUserName = $json['username'];
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['username'=>$EnteredUserName]);
-        //$this->get('fos_oauth_server.server')->grantAccessToken($request2)->getContent();
+        $username = json_decode($request->getContent(false), true)['username'];
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(array('username' => $username));
         if (null === $user) {
             return new Response('please register if you\'re not registered');
         }
@@ -48,10 +47,10 @@ class SecurityController extends BaseController
         $password = $json["password"];
         $valid = $encoder->isPasswordValid($oldPassword, $password, '');
         if ($valid) {
-           $token= $this->getAuth2Token($user,$request);
+            $token = $this->getAuth2Token($user, $request);
+            $user = $this->getDoctrine()->getRepository(AccessToken::class)->findOneBy(array('token' => $token))->getUser()->getId();
         }
-
-        return new JsonResponse($token);
+        return new JsonResponse(array('token' => $token, 'user_id' => $user));
     }
 
     /**
@@ -66,19 +65,6 @@ class SecurityController extends BaseController
      {
          throw new \RuntimeException('You must activate the logout in your security firewall configuration.');
      }*/
-
-
-    /**
-     * @Rest\Post(path="/signout")
-     */
-    public function logoutAction()
-    {
-        $token = $this->container->get("security.token_storage")->getToken();
-        $this->tokenManager->removeToken('authenticate');
-        $this->get('request')->getSession()->invalidate();
-
-        return new Response('user logged out');
-    }
 
 
     protected function getAuth2Token(User $user, Request $request)
@@ -98,9 +84,7 @@ class SecurityController extends BaseController
                     $this
                         ->get('fos_oauth_server.server')
                         ->grantAccessToken($request2)
-                        ->getContent(),
-                    true
-                )
+                        ->getContent(), true)
             );
         } catch (OAuth2ServerException $e) {
             return $e->getHttpResponse();
