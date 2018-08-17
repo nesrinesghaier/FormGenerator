@@ -50,9 +50,25 @@ class FormController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $forms = $em->getRepository(Form::class)->findAll();
-        $serializer = $this->get('jms_serializer')->serialize($forms, 'json');
-        $response = new Response($serializer);
-        return new Response($response);
+        $stack = array();
+        foreach ($forms as $form) {
+            $user = $form->getUser();
+            $data = array(
+                'title' => $form->getTitle(),
+                'form_description' => $form->getFormDescription(),
+                'creation_date' => $form->getCreationDate(),
+                'last_modif_date' => ($form->getLastModifDate() != null) ? $form->getLastModifDate() : 'not yet modified',
+                "user" => array(
+                    "id" => $user->getId(),
+                    "username" => $user->getUsername(),
+                    "email" => $user->getEmail(),
+                    "first_name" => $user->getFirstName(),
+                    "last_name" => $user->getLastName(),
+                )
+            );
+            array_push($stack, $data);
+        }
+        return new JsonResponse($stack);
     }
 
     /**
@@ -61,7 +77,7 @@ class FormController extends Controller
      */
     public function showFormAction(Request $request, $id)
     {
-        if(!$this->tokenValidation($request)){
+        if (!$this->tokenValidation($request)) {
             return new Request('{"error":"access_denied","error_description":"authentication required"}');
         }
         $form = $this->getDoctrine()
