@@ -7,39 +7,42 @@
  */
 
 namespace AppBundle\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use AppBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="form")
  */
 class Form
 {
-	/**
-	 * @ORM\Id
-	 * @ORM\GeneratedValue(strategy="AUTO")
-	 * @ORM\Column(type="integer")
-	 */
-	protected $id;
-	/**
-	 * @ORM\Column(type="string",name="title")
-	 */
-	private $title;
-	/**
-	 * @ORM\Column(type="string",name="formDescription")
-	 */
-	private $formDescription;
-	/**
-	 * @ORM\Column(type="datetime",name="creationDate")
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
+    protected $id;
+    /**
+     * @ORM\Column(type="string",name="title")
+     */
+    private $title;
+    /**
+     * @ORM\Column(type="string",name="formDescription", nullable=true)
+     */
+    private $formDescription;
+    /**
+     * @ORM\Column(type="datetime",name="creationDate")
      * @Assert\DateTime
-	 */
-	private $creationDate;
-	/**
-	 * @ORM\Column(type="datetime",name="lastModifDate", nullable=true)
-	 * @Assert\Type("\DateTime")
-	 */
-	private $lastModifDate;
+     */
+    private $creationDate;
+    /**
+     * @ORM\Column(type="datetime",name="lastModifDate", nullable=true)
+     * @Assert\Type("\DateTime")
+     */
+    private $lastModifDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
@@ -47,107 +50,119 @@ class Form
      */
     private $user;
 
-	/**
-	 * Form constructor.
-	 * @param $lastModifDate
-	 */
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Question",mappedBy="form", cascade={"persist", "remove"})
+     */
+    protected $questions;
 
-	/**
-	 * Form constructor.
-	 * @param $id
-	 * @param $title
-	 * @param $formDescription
-	 * @param $creationDate
-	 * @param $lastModifDate
-	 */
+    /**
+     * @return mixed
+     */
+    public function getQuestions()
+    {
+        return $this->questions;
+    }
 
-	public function __construct( $title, $formDescription, $creationDate)
-	{
-		$this->title = $title;
-		$this->formDescription = $formDescription;
-		$this->creationDate = $creationDate;
-	}
+    /**
+     * @param mixed $questions
+     */
+    public function setQuestions($questions)
+    {
+        $this->questions= $questions;
+    }
 
-	/**
-	 * @return mixed
-	 */
 
-	public function getId()
-	{
-		return $this->id;
-	}
 
-	/**
-	 * @param mixed $id
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
+    /**
+     * Form constructor.
+     * @param $id
+     * @param $title
+     * @param $formDescription
+     * @param $creationDate
+     * @param $lastModifDate
+     */
 
-	/**
-	 * @return mixed
-	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
+    public function __construct($title, $formDescription, $creationDate)
+    {
+        $this->title = $title;
+        $this->formDescription = $formDescription;
+        $this->creationDate = $creationDate;
+        $this->questions = new ArrayCollection();
 
-	/**
-	 * @param mixed $title
-	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
-	}
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getFormDescription()
-	{
-		return $this->formDescription;
-	}
+    /**
+     * @return mixed
+     */
 
-	/**
-	 * @param mixed $formDescription
-	 */
-	public function setFormDescription($formDescription)
-	{
-		$this->formDescription = $formDescription;
-	}
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getCreationDate()
-	{
-		return $this->creationDate;
-	}
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
 
-	/**
-	 * @param mixed $creationDate
-	 */
-	public function setCreationDate($creationDate)
-	{
-		$this->creationDate = $creationDate;
-	}
+    /**
+     * @param mixed $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getLastModifDate()
-	{
-		return $this->lastModifDate;
-	}
+    /**
+     * @return mixed
+     */
+    public function getFormDescription()
+    {
+        return $this->formDescription;
+    }
 
-	/**
-	 * @param mixed $lastModifDate
-	 */
-	public function setLastModifDate($lastModifDate)
-	{
-		$this->lastModifDate = $lastModifDate;
-	}
+    /**
+     * @param mixed $formDescription
+     */
+    public function setFormDescription($formDescription)
+    {
+        $this->formDescription = $formDescription;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param mixed $creationDate
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastModifDate()
+    {
+        return $this->lastModifDate;
+    }
+
+    /**
+     * @param mixed $lastModifDate
+     */
+    public function setLastModifDate($lastModifDate)
+    {
+        $this->lastModifDate = $lastModifDate;
+    }
 
     /**
      * @return mixed

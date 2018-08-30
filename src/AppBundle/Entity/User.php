@@ -80,6 +80,23 @@ class User extends BaseUser
 	{
 		$this->lastName = $lastName;
 	}
+
+    /**
+     * @return mixed
+     */
+    public function getForms()
+    {
+        return $this->forms;
+    }
+
+    /**
+     * @param mixed $forms
+     */
+    public function setForms($forms)
+    {
+        $this->forms = $forms;
+    }
+
 	/**
 	 * @return mixed
 	 */
