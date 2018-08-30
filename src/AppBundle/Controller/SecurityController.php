@@ -66,7 +66,6 @@ class SecurityController extends BaseController
          throw new \RuntimeException('You must activate the logout in your security firewall configuration.');
      }*/
 
-
     protected function getAuth2Token(User $user, Request $request)
     {
         $request2 = new Request();

@@ -20,9 +20,7 @@ class UserController extends Controller
      */
     public function indexAction()
     {
-        /*if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-          throw new AccessDeniedException();
-      }*/
+
         $em = $this->getDoctrine()->getManager();
         $users = $em->getRepository('AppBundle:User')->findAll();
         $serializer = $this->get('jms_serializer')->serialize($users, 'json');
@@ -31,19 +29,14 @@ class UserController extends Controller
     }
 
     /**
-     * Finds and displays a user entity.
-     *
-     * @Rest\Get(path="api/user/{id}")
+     * @Rest\Get("api/user/{id}")
      *
      */
-    public function showAction(User $user)
+    public function showUserAction(Request $request,$id)
     {
-        /*if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-          throw new AccessDeniedException();
-      }*/
         $user = $this->getDoctrine()
             ->getRepository('AppBundle:User')
-            ->find($user->getId());
+            ->find($request->get('id'));
         $data = array(
             'firstName' => $user->getFirstName(),
             'lastName' => $user->getLastName(),
@@ -53,14 +46,5 @@ class UserController extends Controller
         );
         return new Response(json_encode($data));
 
-    }
-
-    /**
-     * @Rest\Post("api/test")
-     *
-     */
-    public function testAction(Request $request)
-    {
-        return new Response('test succeeded');
     }
 }
